@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AXON GALAXY — Evidence.com · Corporate · Ecosystem</title>
+<style>
+:root{
+  --bg:#05060a; --panel:#0b0e16; --ink:#dbe4ff; --muted:#7a86a8;
+  --rule:#1c2333; --accent:#00e5ff; --accent2:#ff3d81; --glow:rgba(0,229,255,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;overflow:hidden;height:100vh}
+#app{position:relative;height:100vh;width:100vw}
+canvas#galaxy{position:absolute;inset:0;display:block;cursor:grab}
+canvas#galaxy.drag{cursor:grabbing}
+/* HUD */
+#hud{position:absolute;top:14px;left:14px;z-index:10;background:rgba(11,14,22,.85);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;max-width:300px;backdrop-filter:blur(6px)}
+#hud h1{font-size:15px;letter-spacing:1.5px;color:var(--accent);text-shadow:0 0 12px var(--glow)}
+#hud .sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+#hud .stats{display:flex;gap:10px;margin-top:10px;font-size:11px}
+#hud .stats b{color:var(--accent2)}
+#search{width:100%;margin-top:10px;background:#0a0d16;border:1px solid var(--rule);color:var(--ink);padding:7px 10px;border-radius:6px;font-family:inherit;font-size:12px;outline:none}
+#search:focus{border-color:var(--accent)}
+#filters{margin-top:10px;display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:10px;padding:3px 8px;border:1px solid var(--rule);border-radius:99px;cursor:pointer;background:transparent;color:var(--muted);transition:.15s}
+.chip.on{color:#fff;border-color:transparent}
+#legend{position:absolute;bottom:14px;left:14px;z-index:10;background:rgba(11,14,22,.85);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;font-size:10px;max-width:260px;backdrop-filter:blur(6px)}
+#legend div{display:flex;align-items:center;gap:8px;margin:3px 0;color:var(--muted)}
+#legend i{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 6px currentColor}
+#legend b{color:var(--ink);font-weight:500}
+#help{position:absolute;bottom:14px;right:14px;z-index:10;background:rgba(11,14,22,.85);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;font-size:10px;color:var(--muted);backdrop-filter:blur(6px)}
+/* inspector */
+#inspector{position:absolute;top:14px;right:14px;z-index:10;background:rgba(11,14,22,.92);border:1px solid var(--accent);border-radius:10px;padding:16px;width:340px;max-height:80vh;overflow-y:auto;display:none;backdrop-filter:blur(8px);box-shadow:0 0 30px var(--glow)}
+#inspector.open{display:block}
+#inspector .close{position:absolute;top:8px;right:10px;cursor:pointer;color:var(--muted);font-size:16px;border:none;background:none}
+#inspector h2{font-size:14px;color:var(--accent);letter-spacing:.5px;margin-bottom:4px;word-break:break-all}
+#inspector .role{font-size:11px;color:var(--accent2);margin-bottom:8px}
+#inspector .note{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+#inspector h3{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px}
+#inspector ul{list-style:none}
+#inspector li{font-size:11px;padding:3px 6px;background:#0a0d16;border:1px solid var(--rule);border-radius:4px;margin:3px 0;word-break:break-all;color:var(--ink)}
+#inspector .key{color:var(--accent2)}
+#inspector .zone-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:99px;margin-top:4px;color:#fff}
+#inspector .links{font-size:10px;color:var(--muted)}
+#noresults{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9;font-size:13px;color:var(--muted);display:none;background:rgba(11,14,22,.9);padding:14px 20px;border:1px solid var(--rule);border-radius:10px}
+@media(max-width:700px){#hud{max-width:230px;padding:10px 12px}#hud h1{font-size:12px}#inspector{width:calc(100vw - 28px);left:14px;right:14px;top:auto;bottom:14px;max-height:45vh}#help{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="galaxy"></canvas>
+<div id="hud">
+  <h1>⦿ RESEARCH GALAXY</h1>
+  <div class="sub">EVIDENCE.COM · CORPORATE · ECOSYSTEM — 2026-08-18<br>Zero-hardware supply-chain map · 575-line fleet</div>
+  <div class="stats"><span><b id="st-z">0</b> planets</span><span><b id="st-s">0</b> nodes</span><span><b id="st-l">0</b> links</span></div>
+  <input id="search" placeholder="search hosts, keys, findings…" autocomplete="off">
+  <div id="filters"></div>
+</div>
+<div id="inspector"><button class="close" onclick="closeInspector()">✕</button><div id="inspector-body"></div></div>
+<div id="legend"></div>
+<div id="help">drag · wheel zoom · click node · search/filter above</div>
+<div id="noresults">no matches in view</div>
+</div>
+
+<script>
+const ARCHIVE = {
+ "zones": [
+  {
+   "id": "z-core",
+   "name": "CORE // EVIDENCE.COM",
+   "color": "#00e5ff",
+   "note": "Azure-hosted evidence platform (52.227.0.0/16), istio-envoy mesh, AWS us-east-1 edge. Portal SPA + admin SPA + API gateway."
+  },
+  {
+   "id": "z-identity",
+   "name": "IDENTITY // OIDC SSO",
+   "color": "#7c5cff",
+   "note": "Self-hosted OAuth2/OIDC identity provider (id.evidence.com) + auth/SSO/login gateways. OIDC discovery endpoints public."
+  },
+  {
+   "id": "z-devops",
+   "name": "DEVOPS // INTERNAL TOOLS",
+   "color": "#ff3d81",
+   "note": "CI/CD, source, containers, observability, secrets — all SSO-gated behind evidence.com wildcard. jenkins/jira/k8s/vault/grafana family."
+  },
+  {
+   "id": "z-corp",
+   "name": "CORPORATE // AXON.COM",
+   "color": "#ffb020",
+   "note": "Marketing (Vercel/Cloudflare), help (CloudFront), community (Salesforce), staging, Palo Alto GlobalProtect VPN."
+  },
+  {
+   "id": "z-acquired",
+   "name": "ACQUIRED // FUSUS · CARBYNE · DEDRONE",
+   "color": "#ffd166",
+   "note": "Fusus (RTCC, absorbed → axon.com), Carbyne (911, still independent WordPress), Dedrone (counter-drone, AWS Frankfurt API)."
+  },
+  {
+   "id": "z-ecosystem",
+   "name": "ECOSYSTEM // DATA PARTNERS",
+   "color": "#4ade80",
+   "note": "Flock (ALPR feed), 3Si (GPS/DTD), RapidSOS (911 EDX). Cross-company data-sharing agreements."
+  },
+  {
+   "id": "z-thirdparty",
+   "name": "THIRD-PARTY INFRA",
+   "color": "#94a3b8",
+   "note": "Salesforce Experience Cloud (my.axon.com), Proofpoint MX, Cloudflare CDN, Route53, AWS/Azure hosting."
+  }
+ ],
+ "services": [
+  {
+   "id": "s-evidence-main",
+   "name": "evidence.com",
+   "zone": "z-core",
+   "role": "MAIN PORTAL — React SPA",
+   "note": "\"Select Region\" SPA behind istio-envoy. Admin SPA exposed at /administrativeMonitor.",
+   "endpoints": [
+    "/",
+    "/administrativeMonitor"
+   ],
+   "dns": [
+    "52.227.251.93"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-api",
+   "name": "api.evidence.com",
+   "zone": "z-core",
+   "role": "API GATEWAY",
+   "note": "Primary backend API gateway. axonapi.evidence.com also resolves (404 root).",
+   "endpoints": [],
+   "dns": [
+    "52.227.180.79"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-upload",
+   "name": "upload.evidence.com",
+   "zone": "z-core",
+   "role": "FILE UPLOAD SERVICE",
+   "note": "CNAME lnyt.us1.evidence.com. Regional upload plane: upload.{ag1,au,ca,de,ent,eu,eur,uk,st}.evidence.com all live.",
+   "endpoints": [],
+   "dns": [
+    "52.227.251.121"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-admin",
+   "name": "admin.evidence.com",
+   "zone": "z-core",
+   "role": "ADMIN PORTAL",
+   "note": "Shared host with status.evidence.com (52.227.251.98). Mirrored as admin.usa.axon.com.",
+   "endpoints": [],
+   "dns": [
+    "52.227.251.98"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-status",
+   "name": "status.evidence.com",
+   "zone": "z-core",
+   "role": "STATUS PAGE",
+   "endpoints": [],
+   "dns": [
+    "52.227.251.98"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-docs",
+   "name": "docs/help/wiki/git.evidence.com",
+   "zone": "z-core",
+   "role": "DOCS + GIT CLUSTER",
+   "note": "52.227.176.143 hosts docs, help, wiki, git (GitLab?) — all SSO-gated.",
+   "endpoints": [],
+   "dns": [
+    "52.227.176.143"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-dev",
+   "name": "support/dev/test.evidence.com",
+   "zone": "z-core",
+   "role": "SUPPORT + NON-PROD",
+   "note": "52.227.180.79 hosts support, dev, test.",
+   "endpoints": [],
+   "dns": [
+    "52.227.180.79"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-mail",
+   "name": "mail.evidence.com",
+   "zone": "z-core",
+   "role": "MAIL",
+   "dns": [
+    "52.227.173.38"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-id",
+   "name": "id.evidence.com",
+   "zone": "z-identity",
+   "role": "OIDC IDENTITY PROVIDER",
+   "note": "Self-hosted OAuth2/OIDC. Discovery public; device authorization flow enabled (oauth/device/authorize).",
+   "endpoints": [
+    "/.well-known/openid-configuration",
+    "/oauth/authorize",
+    "/oauth/token",
+    "/oauth/device/authorize"
+   ],
+   "dns": [
+    "52.227.251.71"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-auth",
+   "name": "auth / sso.evidence.com",
+   "zone": "z-identity",
+   "role": "AUTH + SSO GATEWAYS",
+   "dns": [
+    "52.227.177.17"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-login",
+   "name": "login / portal / www.evidence.com",
+   "zone": "z-identity",
+   "role": "LOGIN / PORTAL ENTRIES",
+   "dns": [
+    "52.227.173.38"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-jenkins",
+   "name": "jenkins.evidence.com",
+   "zone": "z-devops",
+   "role": "CI — SSO-GATED",
+   "note": "Hosts the admin SPA at /administrativeMonitor per June recon.",
+   "endpoints": [
+    "/administrativeMonitor"
+   ],
+   "dns": [
+    "52.227.177.17"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-devops-tools",
+   "name": "jira · nexus · registry · s3 · k8s · monitoring · boards · partners",
+   "zone": "z-devops",
+   "role": "INTERNAL TOOLING CLUSTER A",
+   "note": "All on 52.227.173.38, SSO-gated: Jira, Nexus, container registry, S3-compatible (MinIO?), Kubernetes API, monitoring, project boards, partner portal.",
+   "endpoints": [],
+   "dns": [
+    "52.227.173.38"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-devops-secrets",
+   "name": "vault · docker · grafana · prometheus · runners · partner",
+   "zone": "z-devops",
+   "role": "INTERNAL TOOLING CLUSTER B",
+   "note": "All on 52.227.178.220, SSO-gated: HashiCorp Vault, Docker registry, Grafana, Prometheus, CI runners.",
+   "endpoints": [],
+   "dns": [
+    "52.227.178.220"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-devops-mesh",
+   "name": "consul · pipelines.evidence.com",
+   "zone": "z-devops",
+   "role": "SERVICE MESH + PIPELINES",
+   "dns": [
+    "52.227.170.136"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-devops-data",
+   "name": "elasticsearch · kafka.evidence.com",
+   "zone": "z-devops",
+   "role": "DATA PLANE (PORT-FILTERED)",
+   "note": "Elasticsearch + Kafka — port-filtered externally, SSO-gated.",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-devops-other",
+   "name": "confluence · sonarqube · artifactory · teams · jobs · rancher",
+   "zone": "z-devops",
+   "role": "INTERNAL TOOLING (NO PUBLIC IP)",
+   "note": "SSO-gated, no public DNS resolution.",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-www",
+   "name": "www.axon.com",
+   "zone": "z-corp",
+   "role": "MARKETING — Vercel/Cloudflare",
+   "note": "Server-side rendered Express/Node.js behind Cloudflare (104.18.10.55).",
+   "endpoints": [
+    "/"
+   ],
+   "dns": [
+    "104.18.10.55"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-help",
+   "name": "help.axon.com",
+   "zone": "z-corp",
+   "role": "HELP CENTER — CloudFront",
+   "dns": [
+    "18.161.34.x"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-community",
+   "name": "community.axon.com",
+   "zone": "z-corp",
+   "role": "COMMUNITY → SALESFORCE",
+   "note": "Redirects to my.axon.com/s/ (Salesforce Experience Cloud).",
+   "endpoints": [
+    "/s/"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-my",
+   "name": "my.axon.com",
+   "zone": "z-corp",
+   "role": "SALESFORCE EXPERIENCE CLOUD",
+   "note": "Customer/partner portal on Salesforce (3.146.43.227). Community + academy surfaces.",
+   "endpoints": [
+    "/s/"
+   ],
+   "dns": [
+    "3.146.43.227"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-stage",
+   "name": "stage.axon.com",
+   "zone": "z-corp",
+   "role": "STAGING — AWS ELB us-west-2",
+   "dns": [
+    "52.10.20.122"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-vpn",
+   "name": "vpn.axon.com",
+   "zone": "z-corp",
+   "role": "PALO ALTO GLOBALPROTECT VPN",
+   "note": "74.206.96.236, AS12025 Iron Mountain (IO Connect), Scottsdale AZ. Passive recon only — no auth attempts.",
+   "endpoints": [
+    "/global-protect/",
+    "/ssl-vpn/"
+   ],
+   "dns": [
+    "74.206.96.236"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-academy",
+   "name": "academy.axon.com",
+   "zone": "z-corp",
+   "role": "TRAINING PLATFORM",
+   "note": "Shares IP with dedrone.com (198.202.211.1).",
+   "dns": [
+    "198.202.211.1"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-fusus",
+   "name": "fusus.com",
+   "zone": "z-acquired",
+   "role": "RTCC PLATFORM — ABSORBED",
+   "note": "RTCC platform — absorbed into axon.com/products/axon-fusus. Live sub-platforms: assist/cliq/connect.fusus.com (ZGS). EUR cluster: api.nd.fusus.{de,eur}.axon.com (403 awselb).",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-carbyne",
+   "name": "carbyne.com",
+   "zone": "z-acquired",
+   "role": "911 CLOUD — INDEPENDENT INFRA",
+   "note": "104.19.154.92 Cloudflare, WordPress with wp-json API exposed. Still operates independently.",
+   "endpoints": [
+    "/wp-json/"
+   ],
+   "dns": [
+    "104.19.154.92"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone",
+   "name": "dedrone.com",
+   "zone": "z-acquired",
+   "role": "COUNTER-DRONE — Cloudflare + Lambda@Edge",
+   "dns": [
+    "198.202.211.1"
+   ],
+   "endpoints": [],
+   "keys": [],
+   "note": "Counter-drone. C2 console at c2.dedrone.com with auth.c2.dedrone.com. api-tomcat = Apache Tomcat 8.5.16; sandbox APIs live."
+  },
+  {
+   "id": "s-dedrone-api",
+   "name": "ec2-fra-0004.dedrone.com",
+   "zone": "z-acquired",
+   "role": "DEDRONE API — AWS Frankfurt",
+   "dns": [
+    "52.59.102.12"
+   ],
+   "endpoints": [],
+   "keys": [],
+   "note": "api.dedrone.com (403) + api.sandbox.dedrone.com (200) + api-tomcat.dedrone.com (Tomcat 8.5.16) + aptly.sandbox.dedrone.com (200) + apiconsole (401)."
+  },
+  {
+   "id": "s-flock",
+   "name": "Flock Safety ecosystem",
+   "zone": "z-ecosystem",
+   "role": "ALPR DATA PARTNER",
+   "note": "api.flocksafety.com + login.flocksafety.com (Auth0). Cross-connection: Axon Fleet ALPR feeds into Flock OS; data-sharing agreements.",
+   "endpoints": [
+    "/oauth/token",
+    "/oauth/device/code"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-3si",
+   "name": "3Si Security — DTD portal",
+   "zone": "z-ecosystem",
+   "role": "GPS TRACKING PARTNER",
+   "note": "alpha/internal.3sitracking.com — public DTD login (Ajax-loaded), auth at /tracker/app.php/authenticate.",
+   "endpoints": [
+    "/tracker/app.php/authenticate",
+    "/tracker/app.php/authenticate/form"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-rapidsos",
+   "name": "RapidSOS EDX",
+   "zone": "z-ecosystem",
+   "role": "911 EMERGENCY DATA PARTNER",
+   "note": "edx-sandbox.rapidsos.com — sandbox token LIVE (read-only, GET /v1/alerts). Production EDX powers Axon 911 integrations.",
+   "endpoints": [
+    "/v1/alerts"
+   ],
+   "dns": [],
+   "keys": [
+    "REDACTED — sandbox token in private notes"
+   ]
+  },
+  {
+   "id": "s-salesforce",
+   "name": "Salesforce Experience Cloud",
+   "zone": "z-thirdparty",
+   "role": "CUSTOMER PORTAL PLATFORM",
+   "note": "my.axon.com / community.axon.com run on Salesforce.",
+   "endpoints": [],
+   "dns": [
+    "3.146.43.227"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-proofpoint",
+   "name": "Proofpoint MX",
+   "zone": "z-thirdparty",
+   "role": "EMAIL SECURITY",
+   "dns": [
+    "mx0a-00333a01.pphosted.com"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-cloudflare",
+   "name": "Cloudflare CDN",
+   "zone": "z-thirdparty",
+   "role": "CDN / WAF EDGE",
+   "note": "Fronts www.axon.com, carbyne.com, dedrone.com.",
+   "dns": [],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-azure",
+   "name": "Microsoft Azure 52.227.0.0/16",
+   "zone": "z-thirdparty",
+   "role": "EVIDENCE.COM HOSTING",
+   "note": "Entire evidence.com platform runs on Azure; istio-envoy mesh.",
+   "dns": [
+    "52.227.0.0/16"
+   ],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-aws",
+   "name": "AWS (Route53 + us-east-1 + us-west-2)",
+   "zone": "z-thirdparty",
+   "role": "DNS + EDGE + STAGING",
+   "note": "Route53 DNS for axon.com/evidence.com; stage.axon.com ELB us-west-2; us-east-1 edge.",
+   "dns": [],
+   "endpoints": [],
+   "keys": []
+  },
+  {
+   "id": "s-commander",
+   "name": "*.commander.evidence.com (80+ live)",
+   "zone": "z-core",
+   "role": "REGIONAL TENANT FLEET",
+   "note": "istio-envoy 'Sign In - Axon' on 80+ live hosts: German states (bayern, brandenburg, bw), region codes (aprbue/man/pfo), body-cam clusters bdc242-260+, aw1/aw2, commander-pm-pp.",
+   "endpoints": [
+    "/"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-local",
+   "name": "*.local.evidence.com (PUBLIC DNS)",
+   "zone": "z-core",
+   "role": "INTERNAL-NAMED HOSTS RESOLVING",
+   "note": "axon.local, kobanya.local (Budapest), ksamoi.local — internal naming convention exposed publicly, all serving the login SPA.",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-evidence-regions",
+   "name": "eu · ent2.evidence.com",
+   "zone": "z-core",
+   "role": "REGIONAL PORTALS",
+   "note": "eu.evidence.com, ent2.evidence.com live (Sign In - Axon).",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-iot",
+   "name": "api.{us-east-1,us-east-2}.main.iot.ent.axon.com",
+   "zone": "z-corp",
+   "role": "IoT ENTERPRISE API — 401 ENVOY",
+   "note": "Axon IoT enterprise ingest plane; envoy 401 (unauthenticated requests rejected — passive check only).",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-s3-static",
+   "name": "axon-static-site.s3.us-west-1.amazonaws.com",
+   "zone": "z-corp",
+   "role": "PUBLIC STATIC BUCKET",
+   "note": "Serves marketing/help assets. Bucket listing denied; object URLs public (same class as CarPlay cpbox bucket — enumeration lead).",
+   "endpoints": [
+    "/"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone-c2",
+   "name": "c2.dedrone.com + auth.c2.dedrone.com",
+   "zone": "z-acquired",
+   "role": "DEDRONE C2 CONSOLE",
+   "note": "'Sign in to Dedrone C2' — counter-drone command console; auth subdomain for OIDC.",
+   "endpoints": [
+    "/"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-fusus-eur",
+   "name": "fusus.eur.axon.com cluster",
+   "zone": "z-acquired",
+   "role": "FUSUS EUR REGION",
+   "note": "fususcore-api-* internal service names in certs; api.nd.fusus.{de,eur}.axon.com live (403 awselb).",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  }
+ ],
+ "links": [
+  [
+   "s-devops-tools",
+   "z-devops"
+  ],
+  [
+   "s-devops-mesh",
+   "z-devops"
+  ],
+  [
+   "s-salesforce",
+   "z-thirdparty"
+  ],
+  [
+   "s-devops-secrets",
+   "z-devops"
+  ],
+  [
+   "s-dedrone-api",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-main",
+   "s-evidence-id"
+  ],
+  [
+   "s-help",
+   "z-corp"
+  ],
+  [
+   "s-academy",
+   "z-corp"
+  ],
+  [
+   "s-evidence-upload",
+   "s-evidence-api"
+  ],
+  [
+   "s-my",
+   "z-corp"
+  ],
+  [
+   "s-cloudflare",
+   "z-thirdparty"
+  ],
+  [
+   "s-evidence-login",
+   "s-evidence-id"
+  ],
+  [
+   "s-my",
+   "s-salesforce"
+  ],
+  [
+   "s-devops-other",
+   "z-devops"
+  ],
+  [
+   "s-iot",
+   "z-corp"
+  ],
+  [
+   "s-azure",
+   "z-thirdparty"
+  ],
+  [
+   "s-carbyne",
+   "z-acquired"
+  ],
+  [
+   "s-commander",
+   "z-core"
+  ],
+  [
+   "s-rapidsos",
+   "z-ecosystem"
+  ],
+  [
+   "s-3si",
+   "z-ecosystem"
+  ],
+  [
+   "s-evidence-docs",
+   "z-core"
+  ],
+  [
+   "s-rapidsos",
+   "s-evidence-main"
+  ],
+  [
+   "s-fusus-eur",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-login",
+   "z-identity"
+  ],
+  [
+   "s-evidence-main",
+   "s-www"
+  ],
+  [
+   "s-evidence-main",
+   "z-core"
+  ],
+  [
+   "s-dedrone-c2",
+   "z-acquired"
+  ],
+  [
+   "s-www",
+   "z-corp"
+  ],
+  [
+   "s-evidence-upload",
+   "z-core"
+  ],
+  [
+   "s-evidence-status",
+   "z-core"
+  ],
+  [
+   "s-flock",
+   "z-ecosystem"
+  ],
+  [
+   "s-flock",
+   "s-evidence-main"
+  ],
+  [
+   "s-s3-static",
+   "z-corp"
+  ],
+  [
+   "s-fusus",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-admin",
+   "z-core"
+  ],
+  [
+   "s-evidence-api",
+   "z-core"
+  ],
+  [
+   "s-evidence-dev",
+   "z-core"
+  ],
+  [
+   "s-community",
+   "z-corp"
+  ],
+  [
+   "s-vpn",
+   "z-corp"
+  ],
+  [
+   "s-devops-data",
+   "z-devops"
+  ],
+  [
+   "s-academy",
+   "s-dedrone"
+  ],
+  [
+   "s-evidence-mail",
+   "z-core"
+  ],
+  [
+   "s-aws",
+   "z-thirdparty"
+  ],
+  [
+   "s-evidence-id",
+   "z-identity"
+  ],
+  [
+   "s-jenkins",
+   "z-devops"
+  ],
+  [
+   "s-proofpoint",
+   "z-thirdparty"
+  ],
+  [
+   "s-evidence-auth",
+   "z-identity"
+  ],
+  [
+   "s-3si",
+   "s-flock"
+  ],
+  [
+   "s-evidence-local",
+   "z-core"
+  ],
+  [
+   "s-community",
+   "s-my"
+  ],
+  [
+   "s-fusus",
+   "s-www"
+  ],
+  [
+   "s-stage",
+   "z-corp"
+  ],
+  [
+   "s-dedrone",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-main",
+   "s-evidence-api"
+  ],
+  [
+   "s-evidence-regions",
+   "z-core"
+  ]
+ ]
+}
+</script>
+
+<div id="pro-footer" style="position:absolute;top:auto;bottom:14px;left:50%;transform:translateX(-50%);z-index:8;background:rgba(11,14,22,.75);border:1px solid var(--rule);border-radius:99px;padding:5px 16px;font-size:10px;color:var(--muted);backdrop-filter:blur(6px);text-align:center;white-space:nowrap">
+  CHURCH OF MALWARE · RESEARCH GALAXY PRO · ek0ms + GainSec · 2026-08-18 · passive/public-artifact data
+</div>
+</body>
+</html>
