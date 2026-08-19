@@ -622,103 +622,115 @@ const ARCHIVE = {
    "endpoints": [],
    "dns": [],
    "keys": []
+  },
+  {
+   "id": "s-fusus-assist",
+   "name": "assist · cliq · connect.fusus.com",
+   "zone": "z-acquired",
+   "role": "FUSUS LIVE SUB-PLATFORMS (ZOHO)",
+   "note": "Live portals on Zoho hosting (136.143.189.127, AS2639). Fusus real-time ops tools.",
+   "endpoints": [],
+   "dns": [
+    "136.143.189.127"
+   ],
+   "keys": []
+  },
+  {
+   "id": "s-fusus-de",
+   "name": "api.nd.fusus.de.axon.com",
+   "zone": "z-acquired",
+   "role": "FUSUS GERMANY REGION",
+   "note": "Live (403 awselb), AWS Frankfurt. Fusus DE deployment.",
+   "endpoints": [],
+   "dns": [
+    "35.158.156.140"
+   ],
+   "keys": []
   }
  ],
  "links": [
   [
-   "s-devops-tools",
-   "z-devops"
-  ],
-  [
-   "s-devops-mesh",
-   "z-devops"
-  ],
-  [
-   "s-salesforce",
-   "z-thirdparty"
-  ],
-  [
-   "s-devops-secrets",
-   "z-devops"
-  ],
-  [
-   "s-dedrone-api",
+   "s-dedrone",
    "z-acquired"
   ],
   [
-   "s-evidence-main",
-   "s-evidence-id"
-  ],
-  [
-   "s-help",
-   "z-corp"
-  ],
-  [
-   "s-academy",
-   "z-corp"
-  ],
-  [
-   "s-evidence-upload",
-   "s-evidence-api"
-  ],
-  [
-   "s-my",
-   "z-corp"
-  ],
-  [
-   "s-cloudflare",
-   "z-thirdparty"
-  ],
-  [
-   "s-evidence-login",
-   "s-evidence-id"
-  ],
-  [
-   "s-my",
-   "s-salesforce"
-  ],
-  [
-   "s-devops-other",
-   "z-devops"
-  ],
-  [
-   "s-iot",
-   "z-corp"
-  ],
-  [
-   "s-azure",
-   "z-thirdparty"
-  ],
-  [
-   "s-carbyne",
-   "z-acquired"
-  ],
-  [
-   "s-commander",
+   "s-evidence-regions",
    "z-core"
   ],
   [
-   "s-rapidsos",
-   "z-ecosystem"
+   "s-proofpoint",
+   "z-thirdparty"
+  ],
+  [
+   "s-evidence-api",
+   "z-core"
   ],
   [
    "s-3si",
    "z-ecosystem"
   ],
   [
+   "s-carbyne",
+   "z-acquired"
+  ],
+  [
    "s-evidence-docs",
    "z-core"
   ],
   [
-   "s-rapidsos",
-   "s-evidence-main"
+   "s-3si",
+   "s-flock"
   ],
   [
-   "s-fusus-eur",
+   "s-evidence-dev",
+   "z-core"
+  ],
+  [
+   "s-www",
+   "z-corp"
+  ],
+  [
+   "s-dedrone-api",
    "z-acquired"
   ],
   [
+   "s-my",
+   "s-salesforce"
+  ],
+  [
+   "s-evidence-main",
+   "z-core"
+  ],
+  [
+   "s-vpn",
+   "z-corp"
+  ],
+  [
    "s-evidence-login",
+   "s-evidence-id"
+  ],
+  [
+   "s-evidence-main",
+   "s-evidence-api"
+  ],
+  [
+   "s-devops-mesh",
+   "z-devops"
+  ],
+  [
+   "s-aws",
+   "z-thirdparty"
+  ],
+  [
+   "s-help",
+   "z-corp"
+  ],
+  [
+   "s-commander",
+   "z-core"
+  ],
+  [
+   "s-evidence-auth",
    "z-identity"
   ],
   [
@@ -726,19 +738,11 @@ const ARCHIVE = {
    "s-www"
   ],
   [
-   "s-evidence-main",
-   "z-core"
+   "s-fusus",
+   "s-www"
   ],
   [
-   "s-dedrone-c2",
-   "z-acquired"
-  ],
-  [
-   "s-www",
-   "z-corp"
-  ],
-  [
-   "s-evidence-upload",
+   "s-evidence-admin",
    "z-core"
   ],
   [
@@ -746,39 +750,55 @@ const ARCHIVE = {
    "z-core"
   ],
   [
-   "s-flock",
-   "z-ecosystem"
-  ],
-  [
-   "s-flock",
-   "s-evidence-main"
-  ],
-  [
-   "s-s3-static",
-   "z-corp"
+   "s-fusus-assist",
+   "z-acquired"
   ],
   [
    "s-fusus",
    "z-acquired"
   ],
   [
-   "s-evidence-admin",
-   "z-core"
+   "s-devops-tools",
+   "z-devops"
   ],
   [
-   "s-evidence-api",
-   "z-core"
-  ],
-  [
-   "s-evidence-dev",
-   "z-core"
+   "s-evidence-id",
+   "z-identity"
   ],
   [
    "s-community",
-   "z-corp"
+   "s-my"
   ],
   [
-   "s-vpn",
+   "s-evidence-local",
+   "z-core"
+  ],
+  [
+   "s-evidence-login",
+   "z-identity"
+  ],
+  [
+   "s-flock",
+   "z-ecosystem"
+  ],
+  [
+   "s-cloudflare",
+   "z-thirdparty"
+  ],
+  [
+   "s-fusus-eur",
+   "z-acquired"
+  ],
+  [
+   "s-flock",
+   "s-evidence-main"
+  ],
+  [
+   "s-devops-other",
+   "z-devops"
+  ],
+  [
+   "s-academy",
    "z-corp"
   ],
   [
@@ -786,64 +806,76 @@ const ARCHIVE = {
    "z-devops"
   ],
   [
-   "s-academy",
-   "s-dedrone"
+   "s-community",
+   "z-corp"
   ],
   [
-   "s-evidence-mail",
-   "z-core"
-  ],
-  [
-   "s-aws",
-   "z-thirdparty"
-  ],
-  [
-   "s-evidence-id",
-   "z-identity"
+   "s-evidence-main",
+   "s-evidence-id"
   ],
   [
    "s-jenkins",
    "z-devops"
   ],
   [
-   "s-proofpoint",
-   "z-thirdparty"
+   "s-academy",
+   "s-dedrone"
   ],
   [
-   "s-evidence-auth",
-   "z-identity"
-  ],
-  [
-   "s-3si",
-   "s-flock"
-  ],
-  [
-   "s-evidence-local",
+   "s-evidence-upload",
    "z-core"
   ],
   [
-   "s-community",
-   "s-my"
+   "s-my",
+   "z-corp"
   ],
   [
-   "s-fusus",
-   "s-www"
+   "s-salesforce",
+   "z-thirdparty"
+  ],
+  [
+   "s-rapidsos",
+   "s-evidence-main"
+  ],
+  [
+   "s-rapidsos",
+   "z-ecosystem"
+  ],
+  [
+   "s-devops-secrets",
+   "z-devops"
+  ],
+  [
+   "s-dedrone-c2",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-mail",
+   "z-core"
+  ],
+  [
+   "s-evidence-upload",
+   "s-evidence-api"
+  ],
+  [
+   "s-s3-static",
+   "z-corp"
+  ],
+  [
+   "s-iot",
+   "z-corp"
   ],
   [
    "s-stage",
    "z-corp"
   ],
   [
-   "s-dedrone",
+   "s-fusus-de",
    "z-acquired"
   ],
   [
-   "s-evidence-main",
-   "s-evidence-api"
-  ],
-  [
-   "s-evidence-regions",
-   "z-core"
+   "s-azure",
+   "z-thirdparty"
   ]
  ]
 }
