@@ -468,7 +468,7 @@
    "name": "axon-static-site.s3.us-west-1.amazonaws.com",
    "zone": "z-corp",
    "role": "PUBLIC STATIC BUCKET",
-   "note": "Serves marketing/help assets. Bucket listing denied; object URLs public (same class as CarPlay cpbox bucket — enumeration lead).",
+   "note": "Serves marketing/help assets. Bucket listing denied; object URLs public — enumeration lead.",
    "dns": [],
    "endpoints": [
     "/"
