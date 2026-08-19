@@ -646,63 +646,135 @@ const ARCHIVE = {
     "35.158.156.140"
    ],
    "keys": []
+  },
+  {
+   "id": "s-dedrone-gitlab",
+   "name": "infra-fra-0001.dedrone.com",
+   "zone": "z-acquired",
+   "role": "INTERNAL GITLAB — EXPOSED",
+   "note": "'Sign in · GitLab' reachable publicly (200). Frankfurt infra cluster. Internal source control surface — passive check only.",
+   "endpoints": [
+    "/"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone-quarkus",
+   "name": "api.global.city-dev.dedrone.com",
+   "zone": "z-acquired",
+   "role": "QUARKUS DEV API — DEFAULT APP",
+   "note": "Serves 'code-with-quarkus - 1.0.0-SNAPSHOT' (200) = default/unconfigured Quarkus scaffold exposed. city-dev tenant cluster.",
+   "endpoints": [
+    "/"
+   ],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone-icinga",
+   "name": "icinga.dedrone.com",
+   "zone": "z-acquired",
+   "role": "ICINGA MONITORING",
+   "note": "Apache/2.4.52 (Ubuntu) — monitoring platform reachable. Passive check only.",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone-s3",
+   "name": "vadim.city-dev.dedrone.com",
+   "zone": "z-acquired",
+   "role": "DEV S3 BUCKET",
+   "note": "403 AmazonS3 — dev bucket (named after engineer 'vadim'). city-dev tenant cluster.",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone-soc",
+   "name": "pa-soc-v2.dedrone.com",
+   "zone": "z-acquired",
+   "role": "SOC PLATFORM",
+   "note": "502 nginx (upstream down at scan time). 'pa-soc' = Palo Alto SOC integration? Passive check only.",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
+  },
+  {
+   "id": "s-dedrone-adsb",
+   "name": "adsbexchange.dedrone.com",
+   "zone": "z-acquired",
+   "role": "ADS-B DATA PARTNER",
+   "note": "502 nginx. ADS-B flight-data feed integration (drone-airspace awareness).",
+   "endpoints": [],
+   "dns": [],
+   "keys": []
   }
  ],
  "links": [
   [
-   "s-dedrone",
-   "z-acquired"
-  ],
-  [
-   "s-evidence-regions",
-   "z-core"
-  ],
-  [
-   "s-proofpoint",
-   "z-thirdparty"
-  ],
-  [
-   "s-evidence-api",
-   "z-core"
+   "s-evidence-upload",
+   "s-evidence-api"
   ],
   [
    "s-3si",
    "z-ecosystem"
   ],
   [
-   "s-carbyne",
-   "z-acquired"
-  ],
-  [
-   "s-evidence-docs",
+   "s-evidence-main",
    "z-core"
   ],
   [
-   "s-3si",
-   "s-flock"
+   "s-fusus-eur",
+   "z-acquired"
+  ],
+  [
+   "s-jenkins",
+   "z-devops"
+  ],
+  [
+   "s-proofpoint",
+   "z-thirdparty"
+  ],
+  [
+   "s-fusus",
+   "s-www"
+  ],
+  [
+   "s-dedrone-c2",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-upload",
+   "z-core"
+  ],
+  [
+   "s-evidence-id",
+   "z-identity"
+  ],
+  [
+   "s-fusus",
+   "z-acquired"
   ],
   [
    "s-evidence-dev",
    "z-core"
   ],
   [
-   "s-www",
+   "s-help",
    "z-corp"
   ],
   [
-   "s-dedrone-api",
-   "z-acquired"
+   "s-cloudflare",
+   "z-thirdparty"
   ],
   [
-   "s-my",
-   "s-salesforce"
+   "s-evidence-login",
+   "z-identity"
   ],
   [
-   "s-evidence-main",
-   "z-core"
-  ],
-  [
-   "s-vpn",
+   "s-academy",
    "z-corp"
   ],
   [
@@ -710,20 +782,116 @@ const ARCHIVE = {
    "s-evidence-id"
   ],
   [
-   "s-evidence-main",
-   "s-evidence-api"
+   "s-dedrone",
+   "z-acquired"
   ],
   [
-   "s-devops-mesh",
-   "z-devops"
+   "s-dedrone-quarkus",
+   "z-acquired"
+  ],
+  [
+   "s-dedrone-s3",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-regions",
+   "z-core"
   ],
   [
    "s-aws",
    "z-thirdparty"
   ],
   [
-   "s-help",
+   "s-flock",
+   "z-ecosystem"
+  ],
+  [
+   "s-iot",
    "z-corp"
+  ],
+  [
+   "s-devops-data",
+   "z-devops"
+  ],
+  [
+   "s-devops-tools",
+   "z-devops"
+  ],
+  [
+   "s-stage",
+   "z-corp"
+  ],
+  [
+   "s-evidence-docs",
+   "z-core"
+  ],
+  [
+   "s-azure",
+   "z-thirdparty"
+  ],
+  [
+   "s-carbyne",
+   "z-acquired"
+  ],
+  [
+   "s-rapidsos",
+   "s-evidence-main"
+  ],
+  [
+   "s-dedrone-gitlab",
+   "z-acquired"
+  ],
+  [
+   "s-my",
+   "s-salesforce"
+  ],
+  [
+   "s-evidence-mail",
+   "z-core"
+  ],
+  [
+   "s-dedrone-icinga",
+   "z-acquired"
+  ],
+  [
+   "s-evidence-admin",
+   "z-core"
+  ],
+  [
+   "s-community",
+   "s-my"
+  ],
+  [
+   "s-www",
+   "z-corp"
+  ],
+  [
+   "s-evidence-api",
+   "z-core"
+  ],
+  [
+   "s-evidence-local",
+   "z-core"
+  ],
+  [
+   "s-salesforce",
+   "z-thirdparty"
+  ],
+  [
+   "s-my",
+   "z-corp"
+  ],
+  [
+   "s-fusus-de",
+   "z-acquired"
+  ],
+  [
+   "s-dedrone-adsb",
+   "z-acquired"
+  ],
+  [
+   "s-academy",
+   "s-dedrone"
   ],
   [
    "s-commander",
@@ -734,60 +902,32 @@ const ARCHIVE = {
    "z-identity"
   ],
   [
+   "s-dedrone-api",
+   "z-acquired"
+  ],
+  [
+   "s-devops-secrets",
+   "z-devops"
+  ],
+  [
+   "s-community",
+   "z-corp"
+  ],
+  [
+   "s-vpn",
+   "z-corp"
+  ],
+  [
    "s-evidence-main",
    "s-www"
   ],
   [
-   "s-fusus",
-   "s-www"
-  ],
-  [
-   "s-evidence-admin",
-   "z-core"
-  ],
-  [
-   "s-evidence-status",
-   "z-core"
-  ],
-  [
-   "s-fusus-assist",
-   "z-acquired"
-  ],
-  [
-   "s-fusus",
-   "z-acquired"
-  ],
-  [
-   "s-devops-tools",
-   "z-devops"
-  ],
-  [
-   "s-evidence-id",
-   "z-identity"
-  ],
-  [
-   "s-community",
-   "s-my"
-  ],
-  [
-   "s-evidence-local",
-   "z-core"
-  ],
-  [
-   "s-evidence-login",
-   "z-identity"
-  ],
-  [
-   "s-flock",
+   "s-rapidsos",
    "z-ecosystem"
   ],
   [
-   "s-cloudflare",
-   "z-thirdparty"
-  ],
-  [
-   "s-fusus-eur",
-   "z-acquired"
+   "s-s3-static",
+   "z-corp"
   ],
   [
    "s-flock",
@@ -798,84 +938,32 @@ const ARCHIVE = {
    "z-devops"
   ],
   [
-   "s-academy",
-   "z-corp"
+   "s-fusus-assist",
+   "z-acquired"
   ],
   [
-   "s-devops-data",
+   "s-devops-mesh",
    "z-devops"
   ],
   [
-   "s-community",
-   "z-corp"
+   "s-evidence-main",
+   "s-evidence-api"
+  ],
+  [
+   "s-evidence-status",
+   "z-core"
+  ],
+  [
+   "s-3si",
+   "s-flock"
   ],
   [
    "s-evidence-main",
    "s-evidence-id"
   ],
   [
-   "s-jenkins",
-   "z-devops"
-  ],
-  [
-   "s-academy",
-   "s-dedrone"
-  ],
-  [
-   "s-evidence-upload",
-   "z-core"
-  ],
-  [
-   "s-my",
-   "z-corp"
-  ],
-  [
-   "s-salesforce",
-   "z-thirdparty"
-  ],
-  [
-   "s-rapidsos",
-   "s-evidence-main"
-  ],
-  [
-   "s-rapidsos",
-   "z-ecosystem"
-  ],
-  [
-   "s-devops-secrets",
-   "z-devops"
-  ],
-  [
-   "s-dedrone-c2",
+   "s-dedrone-soc",
    "z-acquired"
-  ],
-  [
-   "s-evidence-mail",
-   "z-core"
-  ],
-  [
-   "s-evidence-upload",
-   "s-evidence-api"
-  ],
-  [
-   "s-s3-static",
-   "z-corp"
-  ],
-  [
-   "s-iot",
-   "z-corp"
-  ],
-  [
-   "s-stage",
-   "z-corp"
-  ],
-  [
-   "s-fusus-de",
-   "z-acquired"
-  ],
-  [
-   "s-azure",
-   "z-thirdparty"
   ]
  ]
 }
