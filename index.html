@@ -45,9 +45,22 @@ canvas#galaxy.drag{cursor:grabbing}
 #inspector .links{font-size:10px;color:var(--muted)}
 #noresults{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9;font-size:13px;color:var(--muted);display:none;background:rgba(11,14,22,.9);padding:14px 20px;border:1px solid var(--rule);border-radius:10px}
 @media(max-width:700px){#hud{max-width:230px;padding:10px 12px}#hud h1{font-size:12px}#inspector{width:calc(100vw - 28px);left:14px;right:14px;top:auto;bottom:14px;max-height:45vh}#help{display:none}}
+  .tabs{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:4px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:4px;max-width:96vw;overflow-x:auto}
+  .tabs a{color:var(--muted);text-decoration:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;border-radius:4px;white-space:nowrap}
+  .tabs a.active{color:var(--accent);background:rgba(0,229,255,.08);border:1px solid var(--rule)}
+  .tabs a:hover{color:var(--ink)}
+  @media (max-width:768px){.tabs{top:8px;padding:3px;gap:2px}.tabs a{font-size:8.5px;letter-spacing:1.5px;padding:6px 10px}}
 </style>
 </head>
 <body>
+<div class="tabs">
+  <a href="https://saviorsec.github.io/axon-network/">⌂ Internal</a>
+  <a href="https://saviorsec.github.io/axon-galaxy/" class="active">Galaxy 2D</a>
+  <a href="https://saviorsec.github.io/axon-globe/">Globe 3D</a>
+  <a href="https://saviorsec.github.io/axon-communities/">Communities</a>
+  <a href="https://saviorsec.github.io/axon-communities/usmap.html">US Map</a>
+</div>
+
 <div id="app">
 <canvas id="galaxy"></canvas>
 <div id="hud">
